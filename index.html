@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumina · Leitor de Código de Barras &amp; QR Code</title>
+<meta name="description" content="Leitor de código de barras e QR Code direto no navegador. Sem instalação, sem cadastro — privacidade total.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Barra de varredura decorativa -->
+<div class="grain" aria-hidden="true"></div>
+
+<header class="site-header">
+  <a class="brand" href="#">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M23 4h3.5A1.5 1.5 0 0 1 28 5.5V9M28 23v3.5a1.5 1.5 0 0 1-1.5 1.5H23M9 28H5.5A1.5 1.5 0 0 1 4 26.5V23"/>
+        <line x1="9" y1="10" x2="9" y2="22"/><line x1="13.5" y1="10" x2="13.5" y2="22"/>
+        <line x1="19.5" y1="10" x2="19.5" y2="22"/><line x1="23" y1="10" x2="23" y2="22"/>
+      </svg>
+    </span>
+    <span class="brand-name">Lumina<em>Scan</em></span>
+  </a>
+  <nav class="header-nav" aria-label="Navegação principal">
+    <a href="#scanner-section">Scanner</a>
+    <a href="#how-it-works">Como funciona</a>
+    <a href="#history-section">Histórico</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="hero-section">
+    <div class="hero-eyebrow"><span class="dot"></span> Leitura instantânea · 100% no navegador</div>
+    <h1 class="hero-title">Decodifique <span class="accent">qualquer código</span><br>em um piscar de olhos.</h1>
+    <p class="hero-sub">
+      Aponte a câmera ou envie uma imagem. Lumina reconhece QR Codes e os principais
+      formatos de código de barras — com total privacidade: nada sai do seu dispositivo.
+    </p>
+    <div class="hero-actions">
+      <a href="#scanner-section" class="btn btn-primary">
+        <i class="fa-solid fa-camera"></i> Iniciar leitura
+      </a>
+      <button type="button" class="btn btn-ghost" id="hero-upload-btn">
+        <i class="fa-solid fa-image"></i> Enviar imagem
+      </button>
+    </div>
+    <ul class="hero-badges" aria-label="Características">
+      <li><i class="fa-solid fa-shield-halved"></i> Privacidade total</li>
+      <li><i class="fa-solid fa-bolt"></i> Detecção em tempo real</li>
+      <li><i class="fa-solid fa-cloud-arrow-down"></i> Sem instalação</li>
+    </ul>
+  </section>
+
+  <!-- ============ SCANNER ============ -->
+  <section class="scanner-section" id="scanner-section" aria-label="Scanner de códigos">
+    <div class="section-heading">
+      <h2>Scanner</h2>
+      <p>Escolha uma das formas abaixo para decodificar seu código.</p>
+    </div>
+
+    <div class="scanner-grid">
+
+      <!-- Câmera -->
+      <article class="panel camera-panel">
+        <header class="panel-head">
+          <h3><i class="fa-solid fa-video"></i> Câmera ao vivo</h3>
+          <span class="panel-status" id="camera-status">Inativa</span>
+        </header>
+
+        <div class="viewport" id="camera-viewport">
+          <video id="camera-video" playsinline muted aria-label="Pré-visualização da câmera"></video>
+          <canvas id="camera-canvas" hidden></canvas>
+
+          <div class="scan-frame" id="scan-frame" aria-hidden="true">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+            <span class="scan-line" id="scan-line"></span>
+          </div>
+
+          <div class="viewport-placeholder" id="camera-placeholder">
+            <i class="fa-solid fa-camera-retro"></i>
+            <p>A câmera está desligada.<br>Toque em <strong>Iniciar câmera</strong> para começar.</p>
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button type="button" class="btn btn-primary" id="start-camera-btn">
+            <i class="fa-solid fa-play"></i> Iniciar câmera
+          </button>
+          <button type="button" class="btn btn-ghost" id="stop-camera-btn" disabled>
+            <i class="fa-solid fa-stop"></i> Parar
+          </button>
+          <button type="button" class="btn btn-ghost" id="switch-camera-btn" disabled title="Alternar câmera">
+            <i class="fa-solid fa-camera-rotate"></i> Trocar
+          </button>
+        </div>
+        <p class="panel-note">Dica: mantenha o código dentro da moldura, a cerca de 15&nbsp;cm da câmera.</p>
+      </article>
+
+      <!-- Upload de imagem -->
+      <article class="panel upload-panel">
+        <header class="panel-head">
+          <h3><i class="fa-regular fa-image"></i> Imagem</h3>
+          <span class="panel-status">PNG · JPG · WEBP</span>
+        </header>
+
+        <label class="dropzone" id="dropzone" for="file-input" tabindex="0"
+               aria-label="Enviar imagem para decodificação. Arraste um arquivo ou pressione Enter para escolher.">
+          <input type="file" id="file-input" accept="image/*" hidden>
+          <span class="dropzone-icon"><i class="fa-solid fa-arrow-up-from-bracket"></i></span>
+          <span class="dropzone-title">Arraste a imagem aqui</span>
+          <span class="dropzone-sub">ou clique para escolher no dispositivo</span>
+        </label>
+
+        <div class="upload-preview" id="upload-preview" hidden>
+          <img id="upload-preview-img" alt="Pré-visualização da imagem enviada">
+          <button type="button" class="btn btn-ghost btn-sm" id="clear-upload-btn">
+            <i class="fa-solid fa-xmark"></i> Remover
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <!-- Resultado -->
+    <article class="result-panel" id="result-panel" hidden aria-live="polite">
+      <div class="result-glow" aria-hidden="true"></div>
+      <header class="result-head">
+        <div class="result-format" id="result-format">
+          <i class="fa-solid fa-qrcode"></i> <span id="result-format-label">QR Code</span>
+        </div>
+        <span class="result-time" id="result-time"></span>
+      </header>
+      <p class="result-label">Conteúdo decodificado</p>
+      <div class="result-content" id="result-content"></div>
+      <div class="result-actions" id="result-actions">
+        <button type="button" class="btn btn-primary" id="copy-btn">
+          <i class="fa-regular fa-copy"></i> Copiar
+        </button>
+        <a class="btn btn-ghost" id="open-link-btn" href="#" target="_blank" rel="noopener" hidden>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir link
+        </a>
+        <button type="button" class="btn btn-ghost" id="new-scan-btn">
+          <i class="fa-solid fa-rotate-left"></i> Nova leitura
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ COMO FUNCIONA ============ -->
+  <section class="how-section" id="how-it-works">
+    <div class="section-heading">
+      <h2>Como funciona</h2>
+      <p>Três passos. Nenhum cadastro. Nenhum dado enviado a servidores.</p>
+    </div>
+    <div class="steps-grid">
+      <article class="step-card">
+        <span class="step-num">01</span>
+        <i class="fa-solid fa-camera step-icon"></i>
+        <h3>Aponte ou envie</h3>
+        <p>Use a câmera do dispositivo ou faça upload de uma imagem que contenha o código.</p>
+      </article>
+      <article class="step-card">
+        <span class="step-num">02</span>
+        <i class="fa-solid fa-wand-magic-sparkles step-icon"></i>
+        <h3>Detecção automática</h3>
+        <p>O motor de leitura identifica QR Code, EAN-13, Code 128, UPC e outros formatos em milissegundos.</p>
+      </article>
+      <article class="step-card">
+        <span class="step-num">03</span>
+        <i class="fa-solid fa-clipboard-check step-icon"></i>
+        <h3>Copie e use</h3>
+        <p>Copie o conteúdo, abra links diretamente e mantenha um histórico local das leituras.</p>
+      </article>
+    </div>
+
+    <div class="formats-strip" aria-label="Formatos suportados">
+      <span class="formats-label">Formatos suportados</span>
+      <ul>
+        <li>QR Code</li><li>EAN-13</li><li>EAN-8</li><li>UPC-A</li><li>UPC-E</li>
+        <li>Code 128</li><li>Code 39</li><li>Code 93</li><li>Codabar</li><li>ITF</li>
+        <li>Data Matrix</li><li>PDF 417</li><li>Aztec</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ HISTÓRICO ============ -->
+  <section class="history-section" id="history-section">
+    <div class="section-heading">
+      <h2>Histórico</h2>
+      <p>Suas últimas leituras ficam salvas apenas neste navegador.</p>
+    </div>
+    <div class="history-panel panel">
+      <div class="history-empty" id="history-empty">
+        <i class="fa-regular fa-folder-open"></i>
+        <p>Nenhuma leitura por aqui ainda.<br>Escaneie algo e ele aparecerá nesta lista.</p>
+      </div>
+      <ul class="history-list" id="history-list"></ul>
+      <div class="history-foot">
+        <button type="button" class="btn btn-ghost btn-sm" id="clear-history-btn" disabled>
+          <i class="fa-regular fa-trash-can"></i> Limpar histórico
+        </button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-credit">Criado e Desenvolvido por <strong>Pedro Correia Lopes Filho</strong></p>
+    <p class="footer-line">Lumina Scan — feito com cuidado, pixel por pixel.</p>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Biblioteca de decodificação (código de barras + QR Code) -->
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
